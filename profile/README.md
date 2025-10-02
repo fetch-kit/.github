@@ -16,6 +16,16 @@ A toolkit of production-ready fetch utilities and testing tools for JavaScript/T
 
 ---
 
+## Join the Community
+
+Connect with other developers, ask questions, and stay updated on new releases in the **Fetch-Kit Discord server**:
+
+[![Discord](https://img.shields.io/badge/Discord-Join_Fetch--Kit-7289DA?logo=discord&logoColor=white)](https://discord.gg/sdyPBPCDUg)
+
+All releases are automatically announced, and pinned messages in each channel help you get started quickly.
+
+---
+
 ## Connect with the Author
 
 *Created and maintained by [Gabor Koos](https://gaborkoos.com)*  
