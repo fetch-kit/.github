@@ -19,7 +19,7 @@ A toolkit of production-ready fetch utilities and testing tools for JavaScript/T
 
 ## Try the Arena
 
-See the fetch-kit ecosystem in action with the **[Fetch Reliability Arena](https://fetch-kit.github.io/ffetch-demo/)** — a live benchmark that runs fetch, axios, ky, and ffetch side-by-side under identical chaos conditions (latency, failures, rate limiting) and compares reliability scores, error rates, and latency in real time. The chaos is provided by `chaos-fetch` under the hood.
+See the fetch-kit ecosystem in action with the **[Fetch Reliability Arena](https://fetch-kit.github.io/ffetch-demo/)**: a live benchmark that runs fetch, axios, ky, and ffetch side-by-side under identical chaos conditions (latency, failures, rate limiting) and compares reliability scores, error rates, and latency in real time. The chaos is provided by `chaos-fetch` under the hood.
 
 ---
 
