@@ -1,0 +1,130 @@
+name: Sync Org PRs To Project
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  sync-open-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync open PRs into fetch-kit project #3
+        uses: actions/github-script@v7
+        env:
+          ORG: fetch-kit
+          PROJECT_ID: PVT_kwDODfbwXc4BabkB
+        with:
+          github-token: ${{ secrets.PROJECT_SYNC_TOKEN }}
+          script: |
+            const org = process.env.ORG;
+            const projectId = process.env.PROJECT_ID;
+
+            async function fetchOpenPullRequestIds() {
+              const ids = [];
+              let cursor = null;
+
+              do {
+                const res = await github.graphql(
+                  `query($q: String!, $cursor: String) {
+                    search(query: $q, type: ISSUE, first: 100, after: $cursor) {
+                      nodes {
+                        __typename
+                        ... on PullRequest {
+                          id
+                          number
+                          repository { nameWithOwner }
+                        }
+                      }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }`,
+                  {
+                    q: `org:${org} is:pr is:open archived:false`,
+                    cursor,
+                  }
+                );
+
+                for (const node of res.search.nodes) {
+                  if (node.__typename === "PullRequest") {
+                    ids.push(node.id);
+                  }
+                }
+
+                cursor = res.search.pageInfo.hasNextPage
+                  ? res.search.pageInfo.endCursor
+                  : null;
+              } while (cursor);
+
+              return ids;
+            }
+
+            async function fetchExistingProjectContentIds() {
+              const ids = new Set();
+              let cursor = null;
+
+              do {
+                const res = await github.graphql(
+                  `query($projectId: ID!, $cursor: String) {
+                    node(id: $projectId) {
+                      ... on ProjectV2 {
+                        items(first: 100, after: $cursor) {
+                          nodes {
+                            content {
+                              __typename
+                              ... on PullRequest { id }
+                              ... on Issue { id }
+                            }
+                          }
+                          pageInfo { hasNextPage endCursor }
+                        }
+                      }
+                    }
+                  }`,
+                  { projectId, cursor }
+                );
+
+                const page = res.node.items;
+                for (const item of page.nodes) {
+                  const content = item.content;
+                  if (content && content.id) {
+                    ids.add(content.id);
+                  }
+                }
+
+                cursor = page.pageInfo.hasNextPage ? page.pageInfo.endCursor : null;
+              } while (cursor);
+
+              return ids;
+            }
+
+            const openPrIds = await fetchOpenPullRequestIds();
+            const existingContentIds = await fetchExistingProjectContentIds();
+
+            let added = 0;
+            let skipped = 0;
+
+            for (const contentId of openPrIds) {
+              if (existingContentIds.has(contentId)) {
+                skipped += 1;
+                continue;
+              }
+
+              await github.graphql(
+                `mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }`,
+                { projectId, contentId }
+              );
+
+              added += 1;
+            }
+
+            core.notice(`Open PRs found: ${openPrIds.length}`);
+            core.notice(`Already in project: ${skipped}`);
+            core.notice(`Added to project: ${added}`);
