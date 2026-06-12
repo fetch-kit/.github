@@ -7,18 +7,22 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   sync-open-prs:
     runs-on: ubuntu-latest
     steps:
       - name: Sync open PRs into fetch-kit project #3
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           ORG: fetch-kit
           PROJECT_ID: PVT_kwDODfbwXc4BabkB
         with:
-          github-token: ${{ secrets.PROJECT_SYNC_TOKEN }}
+          github-token: ${{ secrets.PROJECT_SYNC_TOKEN || github.token }}
           script: |
             const org = process.env.ORG;
             const projectId = process.env.PROJECT_ID;
@@ -35,8 +39,6 @@ jobs:
                         __typename
                         ... on PullRequest {
                           id
-                          number
-                          repository { nameWithOwner }
                         }
                       }
                       pageInfo { hasNextPage endCursor }
@@ -90,9 +92,7 @@ jobs:
                 const page = res.node.items;
                 for (const item of page.nodes) {
                   const content = item.content;
-                  if (content && content.id) {
-                    ids.add(content.id);
-                  }
+                  if (content && content.id) ids.add(content.id);
                 }
 
                 cursor = page.pageInfo.hasNextPage ? page.pageInfo.endCursor : null;
