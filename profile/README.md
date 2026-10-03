@@ -18,6 +18,16 @@ A toolkit of production-ready fetch utilities and testing tools for JavaScript/T
 
 ---
 
+## HTTP Resilience Comparison
+
+[**http-resilience**](https://github.com/fetch-kit/http-resilience) is a cross-library correctness matrix that runs the same executable failure scenarios against popular fetch resilience libraries and records what actually happens.
+
+This suite tests the libraries through some edge-case scenarios: retry recovery and exhaustion, cancellation during backoff, bulkhead queue aborts, hedging (all-branches-fail and timeouts), circuit breakers (half-open concurrency and retry accounting), request deduplication, POST body replay, `Retry-After` handling, total-timeout deadlines etc.
+
+It documents the exact configuration, the expected response or error contract, any assertion failures, and a captured failure trace.
+
+---
+
 ## Try the Arena
 
 See the fetch-kit ecosystem in action with the **[Fetch Reliability Arena](https://fetchkit.org/ffetch-demo/)**: a live benchmark that runs fetch, axios, ky, and ffetch side-by-side under identical chaos conditions (latency, failures, rate limiting) and compares reliability scores, error rates, and latency in real time. The chaos is provided by `chaos-fetch` under the hood.
