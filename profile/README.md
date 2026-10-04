@@ -26,6 +26,8 @@ This suite tests the libraries through some edge-case scenarios: retry recovery 
 
 It documents the exact configuration, the expected response or error contract, any assertion failures, and a captured failure trace.
 
+The results are published at [https://fetchkit.org/http-resilience/](https://fetchkit.org/http-resilience/)
+
 ---
 
 ## Try the Arena
